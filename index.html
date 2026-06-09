@@ -121,6 +121,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .btn-export:hover{border-color:var(--accent);color:var(--accent)}
 .btn-restart{padding:10px 20px;font-size:13px;border-radius:8px;border:1px solid var(--accent);background:var(--accent-light);color:var(--accent);cursor:pointer;transition:all .15s}
 .btn-restart:hover{background:var(--accent);color:#fff}
+.btn-exit{padding:10px 24px;font-size:14px;font-weight:500;border-radius:8px;border:none;background:var(--green);color:#fff;cursor:pointer;transition:opacity .15s}
+.btn-exit:hover{opacity:.88}
+.btn-exit:disabled{opacity:.4;cursor:not-allowed;background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
 .sending-note{font-size:12px;color:var(--text3);margin-top:12px}
 
 /* Dashboard */
@@ -210,7 +213,7 @@ const T = {
     wrong_feedback:t=>`The intruder was: <em>"${t.substring(0,90)}…"</em>`,
     intruder_badge:"← intruder",correct_badge:"✓ correct",wrong_badge:"✗ wrong",
     summary_verdict:n=>n>=4?"Excellent — the PCA axes are semantically distinct.":n===3?"Good — most axes show clear separation.":"The axes may overlap. Consider reviewing the PCA.",
-    export:"Export results (JSON)",restart:"New round",sending:"Saving results…",sent:"Results saved ✓",sent_err:"Could not save — please export manually.",
+    export:"Export results (JSON)",restart:"New round",exit:"Done — you may close this tab",saving:"Saving…",export_fallback:"Download results (JSON)",sending:"Saving results…",sent:"Results saved ✓",sent_err:"Could not save — please export manually.",
     translate_note:"Dreams are in English. You can translate them to Hebrew (AI translation — may reduce scientific accuracy).",
     translate_btn:"Translate to Hebrew",translating:"Translating…",translated_note:"Auto-translated from English",
     dash_title:"Results Dashboard",
@@ -237,7 +240,7 @@ const T = {
     wrong_feedback:t=>`הפולש היה: <em>"${t.substring(0,90)}…"</em>`,
     intruder_badge:"← פולש",correct_badge:"✓ נכון",wrong_badge:"✗ שגוי",
     summary_verdict:n=>n>=4?"מצוין — הצירים ניתנים להבחנה סמנטית ברורה.":n===3?"טוב — רוב הצירים מראים הפרדה סמנטית.":"ייתכן שהצירים חופפים. שקלי לבדוק מחדש.",
-    export:"ייצוא תוצאות (JSON)",restart:"סבב חדש",sending:"שומר תוצאות…",sent:"התוצאות נשמרו ✓",sent_err:"לא ניתן לשמור — אנא ייצא ידנית.",
+    export:"ייצוא תוצאות (JSON)",restart:"סבב חדש",exit:"סיום — ניתן לסגור את הדף",saving:"שומר…",export_fallback:"הורדת תוצאות (JSON)",sending:"שומר תוצאות…",sent:"התוצאות נשמרו ✓",sent_err:"לא ניתן לשמור — אנא ייצא ידנית.",
     translate_note:"החלומות באנגלית. ניתן לתרגם לעברית (תרגום AI — עשוי להפחית דיוק מדעי).",
     translate_btn:"תרגום לעברית",translating:"מתרגם…",translated_note:"תורגם מאנגלית ע\"י AI",
     dash_title:"דשבורד תוצאות",
@@ -458,8 +461,14 @@ function renderSummary(){
   else if(sendStatus==='sent') html+=`<div class="sending-note" style="color:var(--green)">${t.sent}</div>`;
   else if(sendStatus==='error') html+=`<div class="sending-note" style="color:var(--red)">${t.sent_err}</div>`;
 
+  const exitBtn = sendStatus==='sent'
+    ? `<button class="btn-exit" onclick="window.close()">✓ ${t.exit}</button>`
+    : sendStatus==='error'
+    ? `<button class="btn-export" onclick="exportResults()">↓ ${t.export_fallback}</button>`
+    : `<button class="btn-exit" disabled>⏳ ${t.saving}</button>`;
+
   html+=`<div class="summary-actions">
-    <button class="btn-export" onclick="exportResults()">↓ ${t.export}</button>
+    ${exitBtn}
     <button class="btn-restart" onclick="restartGame()">↺ ${t.restart}</button>
   </div></div>`;
   document.getElementById('app').innerHTML=html;
